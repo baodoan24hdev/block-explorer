@@ -155,7 +155,6 @@ export default function Transaction() {
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
-                    width: "100%",
                     color: "#02977e",
                     backgroundColor: "rgba(0,201,167,.2)",
                     fontWeight: "700",
@@ -205,12 +204,17 @@ export default function Transaction() {
                     </span>
                     {contract.map((item, key) => (
                       <span
-                        style={{ fontSize: "0.8rem", display: "flex" }}
+                        style={{
+                          fontSize: "0.8rem",
+                          display: "flex",
+                          flexFlow: "wrap",
+                        }}
                         key={key}
                       >
                         <ArrowCircleRightIcon
                           sx={{ color: "#00c9a7", fontSize: "1rem" }}
                         />
+                        &nbsp;
                         <span style={{ color: "#77838f" }}>TRANSFER</span>&nbsp;
                         {convertToETH(item.value)} Ether&nbsp;
                         <span style={{ color: "#77838f" }}>From</span>&nbsp;
@@ -259,7 +263,26 @@ export default function Transaction() {
                 Value
               </Grid>
               <Grid item xs={9}>
-                {convertToETH(convertToDecimal(transaction.value))} ETH
+                <span
+                  style={{
+                    display: "inline-block",
+                    verticalAlign: "bottom",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    color: "#02977e",
+                    backgroundColor: "rgba(0,201,167,.2)",
+                    fontWeight: "700",
+                    fontSize: "0.7rem",
+                    lineHeight: "1.7",
+                    padding: "0.3rem 0.5rem",
+                    borderRadius: "0.4rem",
+                    textAlign: "center",
+                    width: "auto",
+                  }}
+                >
+                  {convertToETH(convertToDecimal(transaction.value))} Ether
+                </span>
               </Grid>
               <Grid item xs={3}>
                 Transaction Fee
@@ -269,7 +292,7 @@ export default function Transaction() {
                   convertToDecimal(transaction.gas) *
                     convertToDecimal(transaction.gasPrice)
                 )}{" "}
-                ETH
+                Ether
               </Grid>
             </Grid>
           </TabPanel>
@@ -357,7 +380,7 @@ export default function Transaction() {
                           </Tooltip>
                         </TableCell>
                         <TableCell>
-                          <Tooltip title={convertToETH(row.value) + " ETH"}>
+                          <Tooltip title={convertToETH(row.value) + " Ether"}>
                             <span
                               style={{
                                 display: "inline-block",

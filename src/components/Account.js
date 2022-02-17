@@ -49,7 +49,9 @@ function TabPanel(props) {
 export default function Account() {
   const { address } = useParams();
   const [transactions, setTransactions] = React.useState("");
+  const [transactionsStatus, setTransactionsStatus] = React.useState(false);
   const [internalTxns, setInternalTxns] = React.useState("");
+  const [internalTxnsStatus, setInternalTxnsStatus] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [value, setValue] = React.useState(0);
 
@@ -64,6 +66,9 @@ export default function Account() {
       )
       .then((res) => {
         setInternalTxns(res.data.result);
+        if (res.data.status === "1") {
+          setTransactionsStatus(true);
+        }
       });
 
     await axios
@@ -72,6 +77,9 @@ export default function Account() {
       )
       .then((res) => {
         setTransactions(res.data.result);
+        if (res.data.status === "1") {
+          setInternalTxnsStatus(true);
+        }
       });
 
     setLoading(false);
@@ -103,91 +111,31 @@ export default function Account() {
             </Tabs>
           </Box>
           <TabPanel value={value} index={0}>
-            <TableContainer component={Paper}>
-              <Table
-                sx={{ minWidth: 700 }}
-                aria-label="customized table"
-                sx={{ tableLayout: "fixed" }}
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell width="20%">Txn Hash</TableCell>
-                    <TableCell width="10%">Block</TableCell>
-                    <TableCell width="17%">Time</TableCell>
-                    <TableCell width="20%">From</TableCell>
-                    <TableCell width="6%"></TableCell>
-                    <TableCell width="20%">To</TableCell>
-                    <TableCell width="10%">Value</TableCell>
-                    <TableCell width="10%">Txn Fee</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {Object.keys(transactions).length > 0 &&
-                    transactions.slice(0, 24).map((row, key) => (
-                      <TableRow key={key}>
-                        <TableCell component="th" scope="row">
-                          <Tooltip title={row.hash}>
-                            <a
-                              style={{
-                                display: "inline-block",
-                                verticalAlign: "bottom",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                width: "100%",
-                              }}
-                              href={"/transaction/" + row.hash}
-                            >
-                              {row.hash}
-                            </a>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            style={{
-                              display: "inline-block",
-                              verticalAlign: "bottom",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              width: "100%",
-                            }}
-                          >
-                            {row.blockNumber}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            style={{
-                              display: "inline-block",
-                              verticalAlign: "bottom",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              width: "100%",
-                            }}
-                          >
-                            {moment
-                              .unix(row.timeStamp)
-                              .format("DD-MM-YYYY hh:mm:ss")}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title={row.from}>
-                            {row.from === address.toLowerCase() ? (
-                              <span
-                                style={{
-                                  display: "inline-block",
-                                  verticalAlign: "bottom",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  width: "100%",
-                                }}
-                              >
-                                {row.from}
-                              </span>
-                            ) : (
+            {transactionsStatus ? (
+              <TableContainer component={Paper}>
+                <Table
+                  sx={{ minWidth: 700 }}
+                  aria-label="customized table"
+                  sx={{ tableLayout: "fixed" }}
+                >
+                  <TableHead>
+                    <TableRow>
+                      <TableCell width="20%">Txn Hash</TableCell>
+                      <TableCell width="10%">Block</TableCell>
+                      <TableCell width="17%">Time</TableCell>
+                      <TableCell width="20%">From</TableCell>
+                      <TableCell width="24px"></TableCell>
+                      <TableCell width="20%">To</TableCell>
+                      <TableCell width="10%">Value</TableCell>
+                      <TableCell width="10%">Txn Fee</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {Object.keys(transactions).length > 0 &&
+                      transactions.slice(0, 24).map((row, key) => (
+                        <TableRow key={key}>
+                          <TableCell component="th" scope="row">
+                            <Tooltip title={row.hash}>
                               <a
                                 style={{
                                   display: "inline-block",
@@ -197,15 +145,13 @@ export default function Account() {
                                   whiteSpace: "nowrap",
                                   width: "100%",
                                 }}
-                                href={"/account/" + row.from}
+                                href={"/transaction/" + row.hash}
                               >
-                                {row.from}
+                                {row.hash}
                               </a>
-                            )}
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          {row.to === address.toLowerCase() ? (
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
                             <span
                               style={{
                                 display: "inline-block",
@@ -214,19 +160,12 @@ export default function Account() {
                                 textOverflow: "ellipsis",
                                 whiteSpace: "nowrap",
                                 width: "100%",
-                                color: "#02977e",
-                                backgroundColor: "rgba(0,201,167,.2)",
-                                fontWeight: "700",
-                                fontSize: "0.7rem",
-                                lineHeight: "1.7",
-                                padding: "0.2rem 0.5rem",
-                                borderRadius: "0.4rem",
-                                textAlign: "center",
                               }}
                             >
-                              IN
+                              {row.blockNumber}
                             </span>
-                          ) : (
+                          </TableCell>
+                          <TableCell>
                             <span
                               style={{
                                 display: "inline-block",
@@ -235,22 +174,46 @@ export default function Account() {
                                 textOverflow: "ellipsis",
                                 whiteSpace: "nowrap",
                                 width: "100%",
-                                color: "#b47d00",
-                                backgroundColor: "rgba(219,154,4,.2)",
-                                fontWeight: "700",
-                                fontSize: "0.7rem",
-                                lineHeight: "1.7",
-                                padding: "0.2rem 0.5rem",
-                                borderRadius: "0.4rem",
-                                textAlign: "center",
                               }}
                             >
-                              OUT
+                              {moment
+                                .unix(row.timeStamp)
+                                .format("DD-MM-YYYY hh:mm:ss")}
                             </span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title={row.to}>
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title={row.from}>
+                              {row.from === address.toLowerCase() ? (
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    verticalAlign: "bottom",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    width: "100%",
+                                  }}
+                                >
+                                  {row.from}
+                                </span>
+                              ) : (
+                                <a
+                                  style={{
+                                    display: "inline-block",
+                                    verticalAlign: "bottom",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    width: "100%",
+                                  }}
+                                  href={"/account/" + row.from}
+                                >
+                                  {row.from}
+                                </a>
+                              )}
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
                             {row.to === address.toLowerCase() ? (
                               <span
                                 style={{
@@ -260,12 +223,80 @@ export default function Account() {
                                   textOverflow: "ellipsis",
                                   whiteSpace: "nowrap",
                                   width: "100%",
+                                  color: "#02977e",
+                                  backgroundColor: "rgba(0,201,167,.2)",
+                                  fontWeight: "700",
+                                  fontSize: "0.7rem",
+                                  lineHeight: "1.7",
+                                  padding: "0.2rem 0.5rem",
+                                  borderRadius: "0.4rem",
+                                  textAlign: "center",
                                 }}
                               >
-                                {row.to}
+                                IN
                               </span>
                             ) : (
-                              <a
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  verticalAlign: "bottom",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                  width: "100%",
+                                  color: "#b47d00",
+                                  backgroundColor: "rgba(219,154,4,.2)",
+                                  fontWeight: "700",
+                                  fontSize: "0.7rem",
+                                  lineHeight: "1.7",
+                                  padding: "0.2rem 0.5rem",
+                                  borderRadius: "0.4rem",
+                                  textAlign: "center",
+                                }}
+                              >
+                                OUT
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {row.to !== "" ? (
+                              <Tooltip title={row.to}>
+                                {row.to === address.toLowerCase() ? (
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      verticalAlign: "bottom",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                      width: "100%",
+                                    }}
+                                  >
+                                    {row.to}
+                                  </span>
+                                ) : (
+                                  <a
+                                    style={{
+                                      display: "inline-block",
+                                      verticalAlign: "bottom",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                      width: "100%",
+                                    }}
+                                    href={"/account/" + row.to}
+                                  >
+                                    {row.to}
+                                  </a>
+                                )}
+                              </Tooltip>
+                            ) : (
+                              "Contract Creation"
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title={convertToETH(row.value) + " ETH"}>
+                              <span
                                 style={{
                                   display: "inline-block",
                                   verticalAlign: "bottom",
@@ -274,141 +305,69 @@ export default function Account() {
                                   whiteSpace: "nowrap",
                                   width: "100%",
                                 }}
-                                href={"/account/" + row.to}
                               >
-                                {row.to}
-                              </a>
-                            )}
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title={convertToETH(row.value) + " ETH"}>
-                            <span
-                              style={{
-                                display: "inline-block",
-                                verticalAlign: "bottom",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                width: "100%",
-                              }}
+                                {convertToETH(row.value)} ETH
+                              </span>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip
+                              title={
+                                convertToETH(row.gasPrice * row.gasUsed) +
+                                " ETH"
+                              }
                             >
-                              {convertToETH(row.value)} ETH
-                            </span>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip
-                            title={
-                              convertToETH(row.gasPrice * row.gasUsed) + " ETH"
-                            }
-                          >
-                            <span
-                              style={{
-                                display: "inline-block",
-                                verticalAlign: "bottom",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                width: "100%",
-                              }}
-                              className=""
-                            >
-                              {convertToETH(row.gasPrice * row.gasUsed)} ETH
-                            </span>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  verticalAlign: "bottom",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                  width: "100%",
+                                }}
+                                className=""
+                              >
+                                {convertToETH(row.gasPrice * row.gasUsed)} ETH
+                              </span>
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Box sx={{ margin: "39.5px auto", textAlign: "center" }}>
+                No transaction found
+              </Box>
+            )}
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <TableContainer component={Paper}>
-              <Table
-                sx={{ minWidth: 700 }}
-                aria-label="customized table"
-                sx={{ tableLayout: "fixed" }}
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell width="20%">Parent Txn Hash</TableCell>
-                    <TableCell width="12%">Block</TableCell>
-                    <TableCell width="20%">Time</TableCell>
-                    <TableCell width="20%">From</TableCell>
-                    <TableCell width="6%"></TableCell>
-                    <TableCell width="20%">To</TableCell>
-                    <TableCell width="10%">Value</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {Object.keys(internalTxns).length > 0 &&
-                    internalTxns.slice(0, 24).map((row, key) => (
-                      <TableRow key={key}>
-                        <TableCell component="th" scope="row">
-                          <Tooltip title={row.hash}>
-                            <a
-                              style={{
-                                display: "inline-block",
-                                verticalAlign: "bottom",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                width: "100%",
-                              }}
-                              href={"/transaction/" + row.hash}
-                            >
-                              {row.hash}
-                            </a>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            style={{
-                              display: "inline-block",
-                              verticalAlign: "bottom",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              width: "100%",
-                            }}
-                          >
-                            {row.blockNumber}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            style={{
-                              display: "inline-block",
-                              verticalAlign: "bottom",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                              width: "100%",
-                            }}
-                          >
-                            {moment
-                              .unix(row.timeStamp)
-                              .format("DD-MM-YYYY hh:mm:ss")}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title={row.from}>
-                            {row.from === address.toLowerCase() ? (
-                              <span
-                                style={{
-                                  display: "inline-block",
-                                  verticalAlign: "bottom",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  width: "100%",
-                                }}
-                              >
-                                {row.from}
-                              </span>
-                            ) : (
+            {internalTxnsStatus ? (
+              <TableContainer component={Paper}>
+                <Table
+                  sx={{ minWidth: 700 }}
+                  aria-label="customized table"
+                  sx={{ tableLayout: "fixed" }}
+                >
+                  <TableHead>
+                    <TableRow>
+                      <TableCell width="20%">Parent Txn Hash</TableCell>
+                      <TableCell width="12%">Block</TableCell>
+                      <TableCell width="20%">Time</TableCell>
+                      <TableCell width="20%">From</TableCell>
+                      <TableCell width="24px"></TableCell>
+                      <TableCell width="20%">To</TableCell>
+                      <TableCell width="10%">Value</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {Object.keys(internalTxns).length > 0 &&
+                      internalTxns.slice(0, 24).map((row, key) => (
+                        <TableRow key={key}>
+                          <TableCell component="th" scope="row">
+                            <Tooltip title={row.hash}>
                               <a
                                 style={{
                                   display: "inline-block",
@@ -418,50 +377,13 @@ export default function Account() {
                                   whiteSpace: "nowrap",
                                   width: "100%",
                                 }}
-                                href={"/account/" + row.from}
+                                href={"/transaction/" + row.hash}
                               >
-                                {row.from}
+                                {row.hash}
                               </a>
-                            )}
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <ArrowCircleRightIcon sx={{ color: "#00c9a7" }} />
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title={row.to}>
-                            {row.to === address.toLowerCase() ? (
-                              <span
-                                style={{
-                                  display: "inline-block",
-                                  verticalAlign: "bottom",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  width: "100%",
-                                }}
-                              >
-                                {row.to}
-                              </span>
-                            ) : (
-                              <a
-                                style={{
-                                  display: "inline-block",
-                                  verticalAlign: "bottom",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  width: "100%",
-                                }}
-                                href={"/account/" + row.to}
-                              >
-                                {row.to}
-                              </a>
-                            )}
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title={convertToETH(row.value) + " ETH"}>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
                             <span
                               style={{
                                 display: "inline-block",
@@ -472,15 +394,118 @@ export default function Account() {
                                 width: "100%",
                               }}
                             >
-                              {convertToETH(row.value)} ETH
+                              {row.blockNumber}
                             </span>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                verticalAlign: "bottom",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                width: "100%",
+                              }}
+                            >
+                              {moment
+                                .unix(row.timeStamp)
+                                .format("DD-MM-YYYY hh:mm:ss")}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title={row.from}>
+                              {row.from === address.toLowerCase() ? (
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    verticalAlign: "bottom",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    width: "100%",
+                                  }}
+                                >
+                                  {row.from}
+                                </span>
+                              ) : (
+                                <a
+                                  style={{
+                                    display: "inline-block",
+                                    verticalAlign: "bottom",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    width: "100%",
+                                  }}
+                                  href={"/account/" + row.from}
+                                >
+                                  {row.from}
+                                </a>
+                              )}
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
+                            <ArrowCircleRightIcon sx={{ color: "#00c9a7" }} />
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title={row.to}>
+                              {row.to === address.toLowerCase() ? (
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    verticalAlign: "bottom",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    width: "100%",
+                                  }}
+                                >
+                                  {row.to}
+                                </span>
+                              ) : (
+                                <a
+                                  style={{
+                                    display: "inline-block",
+                                    verticalAlign: "bottom",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    width: "100%",
+                                  }}
+                                  href={"/account/" + row.to}
+                                >
+                                  {row.to}
+                                </a>
+                              )}
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title={convertToETH(row.value) + " ETH"}>
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  verticalAlign: "bottom",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                  width: "100%",
+                                }}
+                              >
+                                {convertToETH(row.value)} ETH
+                              </span>
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Box sx={{ margin: "39.5px auto", textAlign: "center" }}>
+                No internal txns found
+              </Box>
+            )}
           </TabPanel>
         </Box>
       )}
