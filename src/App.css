@@ -33,3 +33,7 @@ a {
   align-items: center;
   justify-content: center;
 }
+
+.MuiTabs-flexContainer {
+  justify-content: center !important;
+}

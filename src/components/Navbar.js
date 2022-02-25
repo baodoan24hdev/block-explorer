@@ -7,7 +7,8 @@ import Toolbar from "@mui/material/Toolbar";
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
-import { useNavigate, UseNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@mui/material";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -65,10 +66,12 @@ export default function Navbar() {
       <AppBar position="static" sx={{ backgroundColor: "white" }}>
         <Container maxWidth="lg">
           <Toolbar>
-            <img
-              src={logo}
-              style={{ height: "3rem", padding: "1rem 0rem 1rem 0rem" }}
-            ></img>
+            <Link to="/">
+              <img
+                src={logo}
+                style={{ height: "3rem", padding: "1rem 0rem 1rem 0rem" }}
+              ></img>
+            </Link>
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
@@ -79,6 +82,14 @@ export default function Navbar() {
                 onKeyUp={handlePress}
               />
             </Search>
+            <a href="http://127.0.0.1:5501" target="_blank">
+              <Button
+                variant="outlined"
+                sx={{ height: "41px", marginLeft: "5px" }}
+              >
+                Use the App
+              </Button>
+            </a>
           </Toolbar>
         </Container>
       </AppBar>

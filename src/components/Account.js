@@ -18,6 +18,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 import { convertToETH } from "../utils";
 import { useParams } from "react-router-dom";
+import { Balance } from "@mui/icons-material";
 
 function a11yProps(index) {
   return {
@@ -48,7 +49,9 @@ function TabPanel(props) {
 
 export default function Account() {
   const { address } = useParams();
-  const [transactions, setTransactions] = React.useState("");
+  const [balance, setBalance] = React.useState("");
+  const [balanceStatus, setBalanceStatus] = React.useState("");
+  const [transactions, setTransactions] = React.useState(false);
   const [transactionsStatus, setTransactionsStatus] = React.useState(false);
   const [internalTxns, setInternalTxns] = React.useState("");
   const [internalTxnsStatus, setInternalTxnsStatus] = React.useState(false);
@@ -60,6 +63,17 @@ export default function Account() {
   };
 
   const callApi = async () => {
+    await axios
+      .get(
+        `https://api-goerli.etherscan.io/api?module=account&action=balance&address=${address}&tag=latest&apikey=1PQQQ3PTKPWJAB64XGHTW1T3UHKQIF458N`
+      )
+      .then((res) => {
+        setBalance(res.data.result);
+        if (res.data.status === "1") {
+          setBalanceStatus(true);
+        }
+      });
+
     await axios
       .get(
         `https://api-goerli.etherscan.io/api?module=account&action=txlistinternal&address=${address}&startblock=0&endblock=9999999&sort=desc&apikey=1PQQQ3PTKPWJAB64XGHTW1T3UHKQIF458N`
@@ -108,6 +122,19 @@ export default function Account() {
             >
               <Tab label="Transactions" {...a11yProps(0)} />
               <Tab label="Internal Txns" {...a11yProps(1)} />
+
+              {balanceStatus && (
+                <Box
+                  sx={{
+                    alignSelf: "center",
+                    marginLeft: "auto",
+                    marginRight: "10px",
+                  }}
+                >
+                  <span style={{ color: "#77838f" }}>Balance:</span>{" "}
+                  {convertToETH(balance)} Ether
+                </Box>
+              )}
             </Tabs>
           </Box>
           <TabPanel value={value} index={0}>
